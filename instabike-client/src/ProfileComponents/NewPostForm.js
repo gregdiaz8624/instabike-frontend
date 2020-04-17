@@ -6,7 +6,8 @@ class NewPostForm extends Component {
     title: "",
     description: "",
     image_url: "",
-    likes: 0
+    likes: 0,
+    user_id: this.props.user.id
   }
 
   handleSubmit = (e) => {

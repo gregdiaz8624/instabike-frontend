@@ -35,6 +35,18 @@ class App extends React.Component {
     }
   }
 
+  logSomeonOut = () => {
+    this.setState({
+      user: {
+        id: 0,
+        username: "",
+        posts: []
+      },
+      token: ""
+    })
+    localStorage.clear()
+  }
+
   handleLoginSubmit = (userInfo) => {
     console.log("Login form has been submitted")
 
@@ -48,7 +60,6 @@ class App extends React.Component {
       .then(r => r.json())
       .then(this.handleResponse)
   }
-
 
   handleRegisterSubmit = (userInfo) => {
     console.log("Register form has been submitted")
@@ -64,18 +75,6 @@ class App extends React.Component {
       .then(this.handleResponse)
   }
 
-  logSomeonOut = () => {
-    this.setState({
-      user: {
-        id: 0,
-        username: "",
-        posts: []
-      },
-      token: ""
-    })
-    localStorage.clear()
-  }
-
   handleResponse = (resp) => {
     if (!resp.message) {
       localStorage.token = resp.token
@@ -89,7 +88,6 @@ class App extends React.Component {
     else {
       alert(resp.message)
     }
-
   }
 
   renderForm = (routerProps) => {
@@ -106,6 +104,8 @@ class App extends React.Component {
          user={this.state.user} 
          token={this.state.token}
          addOnePost={this.addOnePost}
+         deleteOnePost={this.deleteOnePost}
+         updateOneUserPost={this.updateOneUserPost}
          />
     } else {
       return <Redirect to="/login"/>
@@ -123,6 +123,71 @@ class App extends React.Component {
       }
     })
 
+  }
+  updateOneUserPost = (id, numberToIncreaseLiked) => {
+
+    // let foundObject = this.state.user.posts.find(userObj => userObj.id === id)
+    // console.log(foundObject)
+
+    // fetch(`http://localhost:4000/posts/${id}`, {
+    //   method: "PATCH",
+    //   headers: {
+    //     "content-type": "application/json",
+    //     "Authorization": `Bearer ${localStorage.token}`
+    //   },
+    //   body: JSON.stringify({
+      
+    //   ...foundObject,
+    //   likes: userObj.likes + numberToIncreaseLiked
+    // })
+    // })
+    // .then(r => r.json())
+    // .then(() => {
+      let theUpdatedArray = this.state.user.posts.map((userObj) => {
+        if (userObj.id === id) {
+          console.log(userObj.likes, numberToIncreaseLiked)
+          return {
+            ...userObj,
+            likes: userObj.likes + numberToIncreaseLiked
+          }
+        } else {
+          return userObj
+        }
+      })
+
+      this.setState({
+  
+          user: {
+            id: this.state.user.id,
+            username: this.state.user.username,
+            posts: theUpdatedArray}
+        
+      })
+    // })
+
+  }
+
+  deleteOnePost = (id) => {
+
+    fetch(`http://localhost:4000/posts/${id}`, {
+      method: "DELETE",
+      headers: {"Authorization": `Bearer ${localStorage.token}`
+              }
+    }) 
+    
+   
+      let filteredArray = this.state.user.posts.filter(postObj => {
+        return postObj.id !== id
+      })
+
+      this.setState({
+        
+        user:{ 
+          id: this.state.user.id,
+          username: this.state.user.username,
+          posts: filteredArray}
+      })
+   
   }
 
   render() {
